@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Веб-платформа для прогнозирования оттока пользователей</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #1a1a1a;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .slide {
+            width: 1200px;
+            height: 675px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            padding: 50px 60px;
+            display: none;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Title Slide */
+        .title-slide {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .title-slide h1 {
+            font-size: 42px;
+            margin-bottom: 40px;
+            line-height: 1.3;
+        }
+
+        .title-slide .info {
+            font-size: 18px;
+            line-height: 1.8;
+            opacity: 0.95;
+        }
+
+        /* Regular Slides */
+        .slide h2 {
+            font-size: 36px;
+            color: #667eea;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .slide h3 {
+            font-size: 24px;
+            color: #764ba2;
+            margin: 20px 0 15px 0;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .column h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 12px 0;
+            padding-left: 25px;
+            position: relative;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        li:before {
+            content: "▪";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-size: 20px;
+        }
+
+        .goal-box {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            margin-top: 20px;
+        }
+
+        .goal-box strong {
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        /* Timeline Slide */
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 5px solid #ff9500;
+        }
+
+        .timeline-year {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ff9500;
+            width: 120px;
+            flex-shrink: 0;
+        }
+
+        .timeline-content {
+            flex: 1;
+            padding: 0 20px;
+        }
+
+        .timeline-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .timeline-desc {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .timeline-result {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            width: 150px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* Comparison Grid */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .method-card {
+            background: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .method-card.hybrid {
+            grid-column: 1 / 2;
+            background: #fff5e6;
+            border-color: #ff9500;
+        }
+
+        .method-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff9500;
+            margin-bottom: 10px;
+        }
+
+        .method-accuracy {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 15px 0;
+        }
+
+        .method-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* Architecture Slide */
+        .tech-section {
+            margin: 15px 0;
+        }
+
+        .tech-section h3 {
+            font-size: 20px;
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+
+        .tech-list {
+            background: #f9f9f9;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        /* Results Slide */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .result-box {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-box h3 {
+            font-size: 18px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            margin: 10px 0;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .result-item:before {
+            content: "✓ ";
+            color: #4caf50;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        /* Conclusion Slide */
+        .conclusion-section {
+            margin: 20px 0;
+        }
+
+        .conclusion-section h3 {
+            font-size: 22px;
+            color: #764ba2;
+            margin-bottom: 15px;
+        }
+
+        .conclusion-content {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        /* Thank You Slide */
+        .thankyou-slide {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .thankyou-slide h2 {
+            font-size: 56px;
+            color: white;
+            border: none;
+            margin-bottom: 30px;
+        }
+
+        .thankyou-slide p {
+            font-size: 28px;
+            opacity: 0.95;
+        }
+
+        /* Navigation */
+        .nav-buttons {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Diagram Placeholder */
+        .diagram-placeholder {
+            background: #f0f4ff;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: #667eea;
+            font-size: 18px;
+            margin-top: 20px;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .diagram-placeholder svg {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Title -->
+        <div class="slide title-slide active">
+            <h1>Веб-платформа для прогнозирования<br>оттока пользователей и автоматизации<br>рекомендаций по удержанию</h1>
+            <div class="info">
+                <p><strong>Выполнил:</strong> [Ваше имя]</p>
+                <p><strong>Руководитель:</strong> [Имя руководителя]</p>
+                <p><strong>Курс:</strong> Проектная практика</p>
+                <p><strong>КПФУ, 2025</strong></p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Актуальность и Цель -->
+        <div class="slide">
+            <h2>Актуальность и Цель Работы</h2>
+            <div class="content">
+                <h3>Актуальность:</h3>
+                <ul>
+                    <li>Затраты на привлечение новых клиентов в <strong>5-25 раз выше</strong> удержания существующих</li>
+                    <li>Компании нуждаются в автоматизированных инструментах анализа оттока</li>
+                    <li>Недостаток доступных платформенных решений без data science экспертизы</li>
+                </ul>
+                
+                <div class="goal-box">
+                    <strong>Цель работы:</strong><br>
+                    Разработка веб-сервиса для автоматического прогнозирования оттока пользователей и формирования персонализированных рекомендаций по удержанию
+                </div>
+            </div>
+            <div class="slide-number">2 / 13</div>
+        </div>
+
+        <!-- Slide 3: Задачи -->
+        <div class="slide">
+            <h2>Задачи Исследования</h2>
+            <div class="content">
+                <ul>
+                    <li>Анализ существующих методов прогнозирования оттока и удержания пользователей</li>
+                    <li>Проектирование архитектуры платформы с возможностью гибкой настройки метода определения оттока</li>
+                    <li>Реализация ML-пайплайна (Random Forest, XGBoost, BiLSTM-CNN)</li>
+                    <li>Разработка методов визуализации результатов с использованием SHAP для объяснимости моделей</li>
+                    <li>Создание модуля автоматизации рекомендаций по удержанию пользователей</li>
+                    <li>Обеспечение соблюдения требований безопасности и конфиденциальности персональных данных</li>
+                </ul>
+            </div>
+            <div class="slide-number">3 / 13</div>
+        </div>
+
+        <!-- Slide 4: Этапы Развития Методов -->
+        <div class="slide">
+            <h2>Этапы Развития Методов</h2>
+            <div class="content">
+                <div class="timeline-item">
+                    <div class="timeline-year">2006</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Bagging & Boosting</div>
+                        <div class="timeline-desc">Первые ансамблевые методы превзошли одиночные модели</div>
+                    </div>
+                    <div class="timeline-result">+15-20%</div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-year">2012</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Ensemble GAM</div>
+                        <div class="timeline-desc">Баланс между точностью и интерпретируемостью результатов</div>
+                    </div>
+                    <div class="timeline-result">AUC 0.89</div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-year">2015</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Random Forest</div>
+                        <div class="timeline-desc">Лучшее соотношение точности и вычислительной эффективности</div>
+                    </div>
+                    <div class="timeline-result">85-87%</div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-year">2023-25</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">BiLSTM-CNN + Гибриды</div>
+                        <div class="timeline-desc">Глубокое обучение с учетом временных зависимостей</div>
+                    </div>
+                    <div class="timeline-result">90-95%</div>
+                </div>
+            </div>
+            <div class="slide-number">4 / 13</div>
+        </div>
+
+        <!-- Slide 5: Сравнение Методов -->
+        <div class="slide">
+            <h2>Сравнение Методов ML/DL</h2>
+            <div class="content">
+                <div class="comparison-grid">
+                    <div class="method-card">
+                        <div class="method-name">Logistic Regression</div>
+                        <div class="method-accuracy">70-75%</div>
+                        <div class="method-desc">Простота и скорость, базовая модель для сравнения</div>
+                    </div>
+
+                    <div class="method-card">
+                        <div class="method-name">Random Forest</div>
+                        <div class="method-accuracy">85-91%</div>
+                        <div class="method-desc">Золотой стандарт: баланс точности и эффективности</div>
+                    </div>
+
+                    <div class="method-card">
+                        <div class="method-name">Gradient Boosting</div>
+                        <div class="method-accuracy">80-89%</div>
+                        <div class="method-desc">Последовательное улучшение предсказаний</div>
+                    </div>
+
+                    <div class="method-card">
+                        <div class="method-name">XGBoost</div>
+                        <div class="method-accuracy">88-91%</div>
+                        <div class="method-desc">Оптимизированный градиентный бустинг</div>
+                    </div>
+
+                    <div class="method-card">
+                        <div class="method-name">BiLSTM-CNN</div>
+                        <div class="method-accuracy">90-95%</div>
+                        <div class="method-desc">Глубокое обучение для сложных паттернов</div>
+                    </div>
+                </div>
+
+                <div class="comparison-grid" style="margin-top: 25px;">
+                    <div class="method-card hybrid">
+                        <div class="method-name">Гибридные модели</div>
+                        <div class="method-accuracy">91-93%</div>
+                        <div class="method-desc">Комбинация лучших подходов ML и DL</div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">5 / 13</div>
+        </div>
+
+        <!-- Slide 6: Архитектура -->
+        <div class="slide">
+            <h2>Архитектура Платформы RetainAI</h2>
+            <div class="content">
+                <div class="tech-section">
+                    <h3>Средства разработки:</h3>
+                    <div class="tech-list">
+                        <strong>Frontend:</strong> HTML/CSS/JavaScript (Django Templates)<br>
+                        <strong>Backend:</strong> Python + Django Framework<br>
+                        <strong>ML Pipeline:</strong> scikit-learn, TensorFlow, XGBoost<br>
+                        <strong>Database:</strong> PostgreSQL<br>
+                        <strong>Visualization:</strong> SHAP для объяснимости моделей<br>
+                        <strong>Email Integration:</strong> SMTP для автоматизации кампаний
+                    </div>
+                </div>
+
+                <div class="tech-section">
+                    <h3>Основные модули:</h3>
+                    <ul>
+                        <li>Загрузка и валидация данных</li>
+                        <li>Обучение и применение ML-моделей</li>
+                        <li>Анализ рисков и сегментация пользователей</li>
+                        <li>Автоматизация retention-кампаний</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="slide-number">6 / 13</div>
+        </div>
+
+        <!-- Slide 7: Блок-схема алгоритма -->
+        <div class="slide">
+            <h2>Блок-схема алгоритма</h2>
+            <div class="content">
+                <div class="diagram-placeholder">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <path d="M3 9h18M9 21V9"/>
+                    </svg>
+                    <div><strong>Блок-схема алгоритма прогнозирования оттока</strong></div>
+                    <div style="font-size: 14px; margin-top: 10px; color: #999;">
+                        (Вставьте изображение блок-схемы алгоритма ГОСТ)
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">7 / 13</div>
+        </div>
+
+        <!-- Slide 8: Диаграмма прецедентов -->
+        <div class="slide">
+            <h2>Диаграмма прецедентов</h2>
+            <div class="content">
+                <div class="diagram-placeholder">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+                    </svg>
+                    <div><strong>Диаграмма прецедентов системы</strong></div>
+                    <div style="font-size: 14px; margin-top: 10px; color: #999;">
+                        (Вставьте изображение UML Use Case диаграммы)
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">8 / 13</div>
+        </div>
+
+        <!-- Slide 9: Диаграмма последовательности -->
+        <div class="slide">
+            <h2>Диаграмма последовательности</h2>
+            <div class="content">
+                <div class="diagram-placeholder">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2">
+                        <line x1="12" y1="2" x2="12" y2="22"/>
+                        <polyline points="19 15 12 22 5 15"/>
+                    </svg>
+                    <div><strong>Диаграмма последовательности процесса прогнозирования</strong></div>
+                    <div style="font-size: 14px; margin-top: 10px; color: #999;">
+                        (Вставьте изображение UML Sequence диаграммы)
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">9 / 13</div>
+        </div>
+
+        <!-- Slide 10: Диаграмма классов -->
+        <div class="slide">
+            <h2>Диаграмма классов</h2>
+            <div class="content">
+                <div class="diagram-placeholder">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                    </svg>
+                    <div><strong>Диаграмма классов системы</strong></div>
+                    <div style="font-size: 14px; margin-top: 10px; color: #999;">
+                        (Вставьте изображение UML Class диаграммы)
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">10 / 13</div>
+        </div>
+
+        <!-- Slide 11: Полученные Результаты -->
+        <div class="slide">
+            <h2>Полученные Результаты</h2>
+            <div class="content">
+                <div class="results-grid">
+                    <div class="result-box">
+                        <h3>Достигнутые показатели:</h3>
+                        <div class="result-item">Разработана веб-платформа RetainAI</div>
+                        <div class="result-item">Реализованы ML-модели с точностью 90-95%</div>
+                        <div class="result-item">Создан автоматизированный retention-пайплайн</div>
+                        <div class="result-item">Интегрирована SHAP-анализ для объяснимости</div>
+                        <div class="result-item">Разработаны UML-диаграммы по ГОСТ</div>
+                    </div>
+
+                    <div class="result-box">
+                        <h3>Практическая ценность:</h3>
+                        <div class="result-item">Снижение времени анализа с недель до часов</div>
+                        <div class="result-item">Увеличение эффективности удержания на 20-35%</div>
+                        <div class="result-item">Доступность для компаний без ML-экспертизы</div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">11 / 13</div>
+        </div>
+
+        <!-- Slide 12: Заключение -->
+        <div class="slide">
+            <h2>Заключение</h2>
+            <div class="content">
+                <div class="conclusion-section">
+                    <h3>Научная новизна:</h3>
+                    <div class="conclusion-content">
+                        Интеграция методов предсказательной аналитики, поддержки принятия решений и автоматизации маркетинговых действий в единую платформу с возможностями прозрачности алгоритмов и учета этических норм
+                    </div>
+                </div>
+
+                <div class="conclusion-section">
+                    <h3>Практическая значимость:</h3>
+                    <div class="conclusion-content">
+                        <strong>Применимость:</strong> e-commerce, SaaS, телекоммуникации<br>
+                        <strong>Экономический эффект:</strong> Повышение доходности компаний на 15-20%<br>
+                        <strong>Доступность:</strong> Оптимизация управления клиентской базой для организаций любого размера
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">12 / 13</div>
+        </div>
+
+        <!-- Slide 13: Thank You -->
+        <div class="slide thankyou-slide">
+            <h2>Спасибо за внимание!</h2>
+            <p>Вопросы?</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-buttons">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">← Назад</button>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Вперед →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+        });
+
+        // Initialize
+        document.getElementById('prevBtn').disabled = true;
+    </script>
+</body>
+</html>
